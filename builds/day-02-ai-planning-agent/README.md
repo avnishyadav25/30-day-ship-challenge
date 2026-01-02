@@ -1,6 +1,7 @@
 # Day 02: Build an AI Agent in 10 minutes
 
-**Content**: [Create Your First AI Planning Agent in 10 Minutes (n8n Tutorial)](https://blog.avnishyadav.com/2026/01/create-your-first-ai-planning-agent-in-10-minutes) (Placeholder Link)
+**Content**: [Create Your First AI Planning Agent in 10 Minutes (n8n Tutorial)](https://blog.avnishyadav.com/2026/01/first-ai-planning-agent-10-minutes-n8n-tutorial.html)
+
 
 ## TL;DR
 I'll show you how to build a working AI planning agent using n8n that takes any task and returns structured plans with clear next actions. You'll get the complete workflow, tested prompts, and a ready-to-use template. This isn't theory—it's the exact system I use daily to manage projects and content creation.

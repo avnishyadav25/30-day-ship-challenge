@@ -1,0 +1,85 @@
+{
+    "name": "AI Planning Agent",
+    "nodes": [
+        {
+            "parameters": {
+                "path": "plan-task",
+                "responseMode": "lastNode",
+                "options": {}
+            },
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                460,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "model": "gpt-3.5-turbo",
+                "prompt": {
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": "ROLE: Expert Planning Assistant\nTASK: Analyze the following task and create an actionable plan.\n\nINPUT: {{$json.task}}\n\nOUTPUT FORMAT: Return ONLY valid JSON with this structure:\n{\n  \"analysis\": {\n    \"complexity\": \"simple/medium/complex\",\n    \"domain\": \"primary category\",\n    \"key_challenges\": [\"list of 2-3 main challenges\"]\n  },\n  \"plan\": {\n    \"total_steps\": number,\n    \"estimated_total_time\": \"X hours\",\n    \"steps\": [\n      {\n        \"id\": 1,\n        \"title\": \"Clear action title\",\n        \"description\": \"Specific what and why\",\n        \"priority\": 1-3 (1=highest),\n        \"time_estimate\": \"minutes/hours\",\n        \"depends_on\": [\"step IDs\"],\n        \"resources\": [\"tools/people/info needed\"]\n      }\n    ]\n  },\n  \"next_actions\": [\n    {\n      \"action\": \"Immediate next step\",\n      \"why_first\": \"Reason for priority\",\n      \"time_to_complete\": \"X minutes\",\n      \"blockers\": [\"potential obstacles\"]\n    }\n  ]\n}\n\nRULES:\n- Break tasks into 3-7 manageable steps\n- Each step must start with an action verb\n- Include realistic time estimates\n- Identify dependencies between steps\n- List 2-3 next actions maximum\n- Be practical, not theoretical"
+                        }
+                    ]
+                },
+                "options": {
+                    "temperature": 0.3,
+                    "maxTokens": 1500
+                }
+            },
+            "name": "OpenAI",
+            "type": "n8n-nodes-base.openAi",
+            "typeVersion": 1,
+            "position": [
+                680,
+                300
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "YOUR_CREDENTIAL_ID",
+                    "name": "OpenAI account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "functionCode": "const aiOutput = items[0].json.message.content;\n\n// Try to extract JSON from the response\nfunction extractJSON(text) {\n  // Look for JSON pattern\n  const jsonMatch = text.match(/\\{[\\s\\S]*\\}/);\n  if (!jsonMatch) {\n    throw new Error('No JSON found in response');\n  }\n  \n  try {\n    return JSON.parse(jsonMatch[0]);\n  } catch (e) {\n    // Try to fix common JSON issues\n    const fixed = jsonMatch[0]\n      .replace(/,\\s*}/g, '}')  // Remove trailing commas\n      .replace(/,\\s*]/g, ']')  // Remove trailing commas in arrays\n      .replace(/'/g, '\"');     // Replace single quotes\n    \n    return JSON.parse(fixed);\n  }\n}\n\nlet plan;\ntry {\n  plan = extractJSON(aiOutput);\n  \n  // Validate required structure\n  if (!plan.plan || !plan.next_actions) {\n    throw new Error('Missing required plan structure');\n  }\n  \n} catch (error) {\n  // Fallback to error structure\n  plan = {\n    error: true,\n    message: error.message,\n    raw_response: aiOutput\n  };\n}\n\nreturn [{\n  json: {\n    original_task: $('Webhook').first().json.body.task,\n    success: !plan.error,\n    plan: plan,\n    processed_at: new Date().toISOString()\n  }\n}];"
+            },
+            "name": "Parse Response",
+            "type": "n8n-nodes-base.function",
+            "typeVersion": 1,
+            "position": [
+                900,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "OpenAI",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI": {
+            "main": [
+                [
+                    {
+                        "node": "Parse Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

@@ -66,4 +66,5 @@ You can't improve what you can't measure. A good rubric has specific, observable
 ## Deliverables
 - [x] Prompt Library Directory Structure
 - [x] 9 System Prompts Created
+- [x] n8n Workflow JSON ([workflow.json](./workflow.json))
 - [x] Blog Post Published

@@ -2,6 +2,7 @@
 
 ## Output
 - **Blog Post**: [Why Early Developers Lose to Automation](https://blog.avnishyadav.com/2026/01/why-early-developers-lose-to-automation.html)
+- **LinkedIn**: [Post](https://www.linkedin.com/posts/avnishyadav25_developers-automation-n8n-activity-7414157712055365632-UyHD)
 - **n8n Workflow**: [Content Generator Workflow](./content-generator-workflow.json)
 
 ![Content Generator Workflow](./workflow-screenshot.png)

@@ -38,6 +38,7 @@ Instead of spending 2 hours writing content for each platform, you:
 This is **leverage**. The same amount of effort produces 3x the output.
 
 ## Deliverables
-- [x] Content Generator n8n Workflow
+- [x] Content Generator n8n Workflow ([workflow](./content-generator-workflow.json))
+- [x] Content Generator Prompt ([prompt](./content-generator-prompt.md))
 - [x] Google Sheet Template
 - [ ] Blog Post Published

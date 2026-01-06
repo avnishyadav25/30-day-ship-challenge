@@ -1,0 +1,382 @@
+{
+  "name": "Content Generator",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "25750009-2fa3-4dde-a556-7936f6b15bf2",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -4720,
+        5312
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "15Ke4jvX-xAfAcp3QwvxNKi6e1kJIQlfceT_ITaokwo0",
+          "mode": "list",
+          "cachedResultName": "Social Media Content Management",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15Ke4jvX-xAfAcp3QwvxNKi6e1kJIQlfceT_ITaokwo0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15Ke4jvX-xAfAcp3QwvxNKi6e1kJIQlfceT_ITaokwo0/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Picked"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b5dd9ac4-4692-4f24-b5d9-1694c341c217",
+      "name": "Read Plan Rows (Google Sheets)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        -4496,
+        5312
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bnRLksUFmm5rNnU1",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function safeJsonParse(text) {\n  if (!text) return null;\n  const t = String(text).trim();\n  // Some providers wrap JSON in extra whitespace; we still parse.\n  try { return JSON.parse(t); } catch (e) {\n    // attempt to extract first JSON object\n    const m = t.match(/\\{[\\s\\S]*\\}$/);\n    if (m) {\n      try { return JSON.parse(m[0]); } catch (e2) {}\n    }\n    return null;\n  }\n}\n\n// DeepSeek responses vary. Try common places.\nconst raw = $json?.body ?? $json;\nlet content = null;\n\nif ($input.first().json.output) content =$input.first().json.output ;\nelse if ($input.first().json.output) content = $input.first().json.output;\nelse if (typeof raw === 'string') content = raw;\ncontent = content.replace(/^```json\\s*|\\s*```$/g, '');\nconst parsed = safeJsonParse(content);\n\nif (!parsed || !parsed.instagram || !parsed.blog || !parsed.linkedin || !parsed.cta) {\n  return [{ json: {\n    ok: false,\n    error: 'Invalid JSON from model. Check prompt or provider response format.',\n    modelRaw: content ?? raw\n  }}];\n}\n\nreturn [{ json: { ok: true, generated: parsed } }];"
+      },
+      "id": "f068057f-5ac5-416b-bf1e-207e0b40c153",
+      "name": "Parse + Validate JSON (Code)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3920,
+        5312
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.ok}}",
+              "value2": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5b6f7d8f-00f4-4244-aef6-ee68ec80b80a",
+      "name": "IF Valid Output",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -3696,
+        5312
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "15Ke4jvX-xAfAcp3QwvxNKi6e1kJIQlfceT_ITaokwo0",
+          "mode": "list",
+          "cachedResultName": "Social Media Content Management",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15Ke4jvX-xAfAcp3QwvxNKi6e1kJIQlfceT_ITaokwo0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15Ke4jvX-xAfAcp3QwvxNKi6e1kJIQlfceT_ITaokwo0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Day": "={{ $('Read Plan Rows (Google Sheets)').item.json.Day }}",
+            "Result": "={{ JSON.stringify($json.generated) }}"
+          },
+          "matchingColumns": [
+            "Day"
+          ],
+          "schema": [
+            {
+              "id": "Day",
+              "displayName": "Day",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Core Topic",
+              "displayName": "Core Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pillar",
+              "displayName": "Pillar",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "What I Learn (Core Lesson)",
+              "displayName": "What I Learn (Core Lesson)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description (200–300 words)",
+              "displayName": "Description (200–300 words)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CTA",
+              "displayName": "CTA",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Picked",
+              "displayName": "Picked",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Result",
+              "displayName": "Result",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "290b3fc7-a565-43d8-a7ca-435018a1d441",
+      "name": "Update Row in Sheet (Google Sheets)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        -3472,
+        5312
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bnRLksUFmm5rNnU1",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "maxTokens": 2500,
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        -4208,
+        5536
+      ],
+      "id": "61d42626-f9b0-44e8-9fd6-5bdfd710b6d9",
+      "name": "DeepSeek Chat Model",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "yN07oCINL3lFSafs",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are the Content Generator Agent for Avnish Yadav (avnish.codes).\n\nCORE OBJECTIVE\nCreate a single, coherent daily run plan that aligns:\n- angle\n- core message\n- proof points\n- CTA\nacross ALL platforms.\n\nThe output must guide downstream agents so they stay consistent.\n\nINPUTS YOU RECEIVE\n- Day number - {{ $json.Day }}\n- Core Topic - {{ $json['Core Topic'] }}\n- Pillar (Career / Build / Automate / Ship / Proof)- {{ $json.Pillar }}\n- Learn (what is studied)- {{ $json['What I Learn (Core Lesson)'] }}\n- Description - {{ $json['Description (200–300 words)'] }}\n      \n   OUTPUT FORMAT (JSON ONLY):\n\n{\n  \"instagram\": {\n    \"title\": \"\",\n    \"hashtag\": [\n      \"#\"\n    ],\n    \"caption\": \"\",\n    \"script_hinglish\": \"\"\n  },\n  \"blog\": {\n    \"title\": \"\",\n    \"tags\": [\n      \"\"\n    ],\n    \"htmlbody\": \"\",\n    \"image_prompt\": \"\"\n  },\n  \"linkedin\": {\n    \"post\": \"\"\n  },\n  \"cta\": {\n    \"keyword\": \"\",\n    \"line\": \"\"\n  }\n}\n\nRULES:- Make it educational, beginner-friendly (0–3 years).- Show a workflow mindset.- Instagram script must be Hinglish, 20–45s, with on-screen cues in brackets.- Blog htmlbody should be clean HTML (h2, ul, code blocks if needed).- LinkedIn post should be crisp, not long.- Use CTA from PLAN, keep comment keyword style.- Return JSON only.",
+        "options": {
+          "systemMessage": "You are a strict JSON generator. Output valid JSON only."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -4272,
+        5312
+      ],
+      "id": "acd3dabe-28a6-432f-8ba2-cb69bb909c53",
+      "name": "Agent — DeepSeek Chat Model"
+    }
+  ],
+  "pinData": {
+    "Agent — DeepSeek Chat Model": [
+      {
+        "json": {
+          "output": "```json\n{\n    \"instagram\": {\n        \"title\": \"Day 1: My 30-Day AI Challenge Kickoff\",\n        \"hashtag\": [\n            \"#30DayAIChallenge\",\n            \"#AIForBeginners\",\n            \"#CareerGrowth\",\n            \"#ProductivityHacks\",\n            \"#BuildInPublic\"\n        ],\n        \"caption\": \"Day 1 of my 30-Day AI Shipping Challenge is LIVE! 🚀\\n\\nStarting strong by setting up my systems before writing a single line of code. Today was all about the foundation: my repo, tracker, daily checklist, and naming conventions.\\n\\nWhy? Because a clear system beats motivation every time. Follow along as I build in public and share everything I learn!\\n\\n#BuildInPublic #AIChallenge #LearnAI #DeveloperJourney #CodingLife\",\n        \"script_hinglish\": \"(Start with upbeat background music. On-screen text: 'DAY 1: The Foundation')\\n\\nAaj se shuru kar raha hoon mera 30-Day AI Challenge! (I'm starting my 30-Day AI Challenge today!)\\n\\nPar pehle line of code se pehle... systems banane padte hain. (But before the first line of code... you have to build systems.)\\n\\n(On-screen checklist appears)\\n✅ GitHub Repo Setup\\n✅ Notion/Sheet Tracker\\n✅ Daily Checklist\\n✅ Naming Conventions\\n\\nYe sab kyun? Kyunki clear system > motivation. (Why all this? Because a clear system > motivation.)\\n\\nAgle 30 din, main public mein build karunga aur sab kuch share karunga. (For the next 30 days, I'll build in public and share everything.)\\n\\n(On-screen text: 'Follow for Day 2!', 'Comment GOALS to share yours!')\"\n    },\n    \"blog\": {\n        \"title\": \"Day 1: Laying the Foundation for My 30-Day AI Shipping Challenge\",\n        \"tags\": [\n            \"AI Challenge\",\n            \"Productivity Systems\",\n            \"Career Growth\",\n            \"Beginner Developer\",\n            \"Build in Public\"\n        ],\n        \"htmlbody\": \"<h2>Why Start With Systems, Not Code?</h2>\\n<p>Today marks Day 1 of my public 30-Day AI Shipping Challenge. Before I wrote a single line of code, I spent the day setting up the foundational systems that will guide the entire month. This might seem counterintuitive—shouldn't I be building?—but a strong workflow is what separates finished projects from abandoned ones.</p>\\n\\n<h2>My Day 1 Setup Checklist</h2>\\n<p>Here's exactly what I put in place:</p>\\n<ul>\\n<li><strong>GitHub Repository:</strong> A clean, well-organized repo with a clear README outlining the challenge's goal.</li>\\n<li><strong>Progress Tracker:</strong> A combined Notion dashboard + Google Sheet to log daily progress, blockers, and learnings.</li>\\n<li><strong>Daily Checklist:</strong> A repeatable template for each day to maintain consistency (Plan, Learn, Build, Share, Reflect).</li>\\n<li><strong>Naming Conventions:</strong> Established rules for branches, commits, and files to keep everything scalable and readable.</li>\\n</ul>\\n\\n<h2>The Mindset: Workflow Over Willpower</h2>\\n<p>Motivation fades. Systems persist. By defining my ICP (Ideal Content Profile), content principles, 'what I won't post' rules, and cadence math upfront, I remove daily decision fatigue. This lets me focus my energy on learning and building.</p>\\n\\n<h2>What's Next?</h2>\\n<p>With the foundation set, Day 2 will dive into the first learning module. The goal is to ship small, learn fast, and document the journey transparently.</p>\\n<p>If you're following along, your first task is simple: set up your own tracker. A spreadsheet is enough to start. Clarity begins with writing things down.</p>\",\n        \"image_prompt\": \"A clean, minimalist desk setup with a laptop open to a GitHub repository, a notebook titled '30-Day AI Challenge Tracker' with checkboxes, and a mug. The style is bright, modern, and focused, with a shallow depth of field.\"\n    },\n    \"linkedin\": {\n        \"post\": \"Day 1 of my 30-Day AI Shipping Challenge is done.\\n\\nI didn't write a single line of code.\\n\\nInstead, I built the systems that will ensure I actually finish:\\n• Set up the GitHub repo & naming conventions\\n• Created a Notion/Sheet progress tracker\\n• Defined a daily checklist for consistency\\n• Locked in my content principles & 'no-go' rules\\n\\nWhy? Because willpower is a terrible strategy. Systems are scalable.\\n\\nThis public challenge is about building AI projects fast, learning in the open, and proving that consistent action > perfect plans.\\n\\nFollow along or join in!\\n\\n#30DayAIChallenge #AI #CareerGrowth #BuildInPublic #Productivity\"\n    },\n    \"cta\": {\n        \"keyword\": \"GOALS\",\n        \"line\": \"Comment 'GOALS' below if you're setting a 30-day challenge for yourself—let's hold each other accountable!\"\n    }\n}\n```"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Read Plan Rows (Google Sheets)": [
+      {
+        "json": {
+          "row_number": 2,
+          "Day": 1,
+          "Core Topic": "Kickoff: 30-Day AI shipping challenge",
+          "Pillar": "Career/Brand",
+          "What I Learn (Core Lesson)": "Repo + Notion/Sheet tracker + daily checklist + naming conventions",
+          "Description (200–300 words)": "ICP + content principles + “what I won’t post” rules + cadence math",
+          "CTA": "Follow + comment your goal",
+          "Picked": "",
+          "Status": "",
+          "Result": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Plan Rows (Google Sheets)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Plan Rows (Google Sheets)": {
+      "main": [
+        [
+          {
+            "node": "Agent — DeepSeek Chat Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Validate JSON (Code)": {
+      "main": [
+        [
+          {
+            "node": "IF Valid Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Valid Output": {
+      "main": [
+        [
+          {
+            "node": "Update Row in Sheet (Google Sheets)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent — DeepSeek Chat Model",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent — DeepSeek Chat Model": {
+      "main": [
+        [
+          {
+            "node": "Parse + Validate JSON (Code)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "d0a2a903-fe21-4fdc-922d-6443b2cb131e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3ed29e6a64dcf47dec104c5d55a0d766c4fe258925a5941bd45f977b041986eb"
+  },
+  "id": "qzAoghqSol7eKBem",
+  "tags": []
+}

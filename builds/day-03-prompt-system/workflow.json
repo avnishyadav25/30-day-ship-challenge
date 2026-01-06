@@ -1,160 +1,139 @@
 {
-    "name": "Prompt Evaluation System",
+    "name": "Prompt Eval + Rewrite (DeepSeek) - Fixed",
     "nodes": [
         {
-            "parameters": {},
-            "id": "manual-trigger",
-            "name": "Manual Trigger",
-            "type": "n8n-nodes-base.manualTrigger",
-            "typeVersion": 1,
-            "position": [
-                460,
-                300
-            ]
-        },
-        {
             "parameters": {
-                "jsCode": "// Mock Inputs: Prompt Template and Test Cases\nreturn [\n  {\n    json: {\n      prompt_template: \"# Blog Introduction\\nRole: Agile Coach\\nTask: Write an intro about daily standups...\",\n      test_cases: [\n        { id: 1, topic: \"Why standups feel like a waste of time\", audience: \"Senior Devs\" },\n        { id: 2, topic: \"How to keep standups under 15 mins\", audience: \"Scrum Masters\" }\n      ]\n    }\n  }\n];"
-            },
-            "id": "mock-data",
-            "name": "Load Prompt & Test Cases",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                680,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "fieldToSplitOut": "test_cases"
-            },
-            "id": "split-tests",
-            "name": "Split Test Cases",
-            "type": "n8n-nodes-base.itemLists",
-            "typeVersion": 1,
-            "position": [
-                900,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "model": "gpt-4",
-                "prompt": {
-                    "messages": [
+                "formTitle": "Prompt Evaluator (DeepSeek)",
+                "formDescription": "Paste a raw prompt + optional test input. DeepSeek will rewrite it into a structured prompt and score it.",
+                "buttonLabel": "Evaluate Prompt",
+                "fields": {
+                    "values": [
                         {
-                            "role": "system",
-                            "content": "={{ $json.prompt_template }}"
+                            "fieldLabel": "Raw Prompt",
+                            "fieldType": "textarea",
+                            "requiredField": true,
+                            "fieldOptions": {
+                                "placeholder": "Paste your prompt here..."
+                            }
                         },
                         {
-                            "role": "user",
-                            "content": "Topic: {{ $json.topic }}\nAudience: {{ $json.audience }}"
+                            "fieldLabel": "Test Input (optional)",
+                            "fieldType": "textarea",
+                            "fieldOptions": {
+                                "placeholder": "Example input you would feed into the prompt (optional)"
+                            }
+                        },
+                        {
+                            "fieldLabel": "Audience (optional)",
+                            "fieldType": "text",
+                            "fieldOptions": {
+                                "placeholder": "e.g., busy developers, founders, students"
+                            }
+                        },
+                        {
+                            "fieldLabel": "Tone (optional)",
+                            "fieldType": "text",
+                            "fieldOptions": {
+                                "placeholder": "e.g., human, direct, practical, no fluff"
+                            }
                         }
                     ]
                 }
             },
-            "id": "openai-generate",
-            "name": "OpenAI - Generate",
-            "type": "n8n-nodes-base.openAi",
-            "typeVersion": 1,
+            "id": "FormTrigger1",
+            "name": "Form Trigger",
+            "type": "n8n-nodes-base.formTrigger",
+            "typeVersion": 2,
             "position": [
-                1120,
+                260,
                 300
-            ],
-            "credentials": {
-                "openAiApi": {
-                    "id": "YOUR_CREDENTIAL_ID",
-                    "name": "OpenAI account"
-                }
-            }
+            ]
         },
         {
             "parameters": {
-                "jsCode": "// Scoring Rubric Logic\nconst output = items[0].json.message.content;\n\nlet score = 0;\nconst rubric = {\n  clarity: 0,\n  completeness: 0,\n  tone: 0,\n  format: 0\n};\n\n// 1. Clarity Check (Simple length/structure proxy)\nif (output.length > 50 && output.length < 500) rubric.clarity = 3;\nelse rubric.clarity = 1;\n\n// 2. Tone Check (Check for forbidden AI words)\nconst forbiddenWords = ['delve', 'explore', 'landscape', 'testament'];\nconst hasForbidden = forbiddenWords.some(word => output.toLowerCase().includes(word));\nrubric.tone = hasForbidden ? 0 : 2;\n\n// 3. Completeness (Mock check)\nrubric.completeness = 3;\n\n// 4. Format\nrubric.format = 2;\n\nscore = rubric.clarity + rubric.tone + rubric.completeness + rubric.format;\n\nreturn [{\n  json: {\n    output: output,\n    score: score,\n    rubric_breakdown: rubric,\n    status: score >= 8 ? 'PASS' : 'FAIL'\n  }\n}];"
+                "method": "POST",
+                "url": "[https://api.deepseek.com/chat/completions](https://api.deepseek.com/chat/completions)",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Authorization",
+                            "value": "={{'Bearer ' + ($env.DEEPSEEK_API_KEY || 'YOUR_API_KEY_HERE')}}"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"model\": \"deepseek-chat\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a Prompt QA expert. Output ONLY valid JSON. Structure: {\\\"improved_prompt\\\": \\\"...\\\", \\\"score_breakdown\\\": {\\\"clarity_0_3\\\": 0, \\\"completeness_0_3\\\": 0, \\\"tone_match_0_2\\\": 0, \\\"format_compliance_0_2\\\": 0}, \\\"final_score_0_10\\\": 0, \\\"top_3_issues\\\": [], \\\"top_3_improvements\\\": [], \\\"best_practice_notes\\\": \\\"\\\"}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"RAW PROMPT: {{ $json['Raw Prompt'] }}\\nINPUT: {{ $json['Test Input (optional)'] }}\\nAUDIENCE: {{ $json['Audience (optional)'] }}\\nTONE: {{ $json['Tone (optional)'] }}\"\n    }\n  ],\n  \"response_format\": { \"type\": \"json_object\" }\n}",
+                "options": {}
             },
-            "id": "score-output",
-            "name": "Score Output",
+            "id": "Http1",
+            "name": "DeepSeek API",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [
+                520,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "let content = $json.choices[0].message.content;\n\n// Remove markdown code fences if present\ncontent = content.replace(/```json/g, '').replace(/```/g, '').trim();\n\ntry {\n  const parsed = JSON.parse(content);\n  return parsed;\n} catch (e) {\n  return { error: \"Failed to parse JSON\", raw: content };\n}"
+            },
+            "id": "Code1",
+            "name": "Clean & Parse JSON",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                1340,
+                740,
                 300
             ]
         },
         {
             "parameters": {
-                "operation": "append",
-                "sheetId": "YOUR_SHEET_ID",
-                "range": "A:E",
-                "options": {}
+                "formTitle": "Prompt Evaluation Result",
+                "completionPageTitle": "Evaluation Complete",
+                "completionMessage": "={{ `\n<h2>Score: ${$json.final_score_0_10}/10</h2>\n<p><strong>Clarity:</strong> ${$json.score_breakdown.clarity_0_3}/3 | \n<strong>Completeness:</strong> ${$json.score_breakdown.completeness_0_3}/3 | \n<strong>Tone:</strong> ${$json.score_breakdown.tone_match_0_2}/2 | \n<strong>Format:</strong> ${$json.score_breakdown.format_compliance_0_2}/2</p>\n\n<hr>\n\n<h3>Improved Prompt</h3>\n<div style=\"background: #f4f4f4; padding: 15px; border-radius: 5px; border: 1px solid #ddd; font-family: monospace; white-space: pre-wrap;\">\n${$json.improved_prompt}\n</div>\n\n<h3>Key Improvements</h3>\n<ul>\n  ${$json.top_3_improvements.map(i => `<li>${i}</li>`).join('')}\n</ul>\n\n<p><i>Note: ${$json.best_practice_notes}</i></p>\n` }}",
+                "buttonLabel": "Back"
             },
-            "id": "google-sheets",
-            "name": "Log to Sheets",
-            "type": "n8n-nodes-base.googleSheets",
+            "id": "FormEnd1",
+            "name": "Display Results",
+            "type": "n8n-nodes-base.form",
             "typeVersion": 1,
             "position": [
-                1560,
+                960,
                 300
-            ],
-            "credentials": {
-                "googleSheetsOAuth2Api": {
-                    "id": "YOUR_GSHEETS_ID",
-                    "name": "Google Sheets account"
-                }
-            }
+            ]
         }
     ],
     "connections": {
-        "Manual Trigger": {
+        "Form Trigger": {
             "main": [
                 [
                     {
-                        "node": "Load Prompt & Test Cases",
+                        "node": "DeepSeek API",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Load Prompt & Test Cases": {
+        "DeepSeek API": {
             "main": [
                 [
                     {
-                        "node": "Split Test Cases",
+                        "node": "Clean & Parse JSON",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Split Test Cases": {
+        "Clean & Parse JSON": {
             "main": [
                 [
                     {
-                        "node": "OpenAI - Generate",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "OpenAI - Generate": {
-            "main": [
-                [
-                    {
-                        "node": "Score Output",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Score Output": {
-            "main": [
-                [
-                    {
-                        "node": "Log to Sheets",
+                        "node": "Display Results",
                         "type": "main",
                         "index": 0
                     }

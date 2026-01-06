@@ -4,6 +4,8 @@
 - **Blog Post**: (Link TBD)
 - **n8n Workflow**: [Content Generator Workflow](./content-generator-workflow.json)
 
+![Content Generator Workflow](./workflow-screenshot.png)
+
 ## TL;DR
 Early devs believe automation is "advanced" or "later-stage." That belief is wrong. Automation is not about replacing skills — it's about amplifying learning speed. Two devs with the same skills diverge: one repeats tasks manually, the other automates them once and reuses forever.
 

@@ -2,6 +2,7 @@
 
 ## Output
 - **Blog Post**: [Stop Adding AI Before You Have Logic: Build Reliable n8n Workflows First](https://blog.avnishyadav.com/2026/01/stop-adding-ai-before-you-have-logic-build-reliable-n8n-workflows-first.html)
+- **LinkedIn**: [Post](https://www.linkedin.com/posts/avnishyadav25_n8n-automation-aiworkflows-activity-7415001831686369280-Qch8)
 
 ![Logic Before Intelligence](./cover-image.png)
 

@@ -33,7 +33,7 @@ Example: `2025-04-10_x_thread_30day-kickoff`
 | 6 | Your First Real Automation (No AI) | Build | [x] | [Blog Post](https://blog.avnishyadav.com/2026/01/stop-adding-ai-before-you-have-logic-build-reliable-n8n-workflows-first.html) <br> [LinkedIn](https://www.linkedin.com/posts/avnishyadav25_n8n-automation-aiworkflows-activity-7415001831686369280-Qch8) | Logic before intelligence. AI is useless without logic. |
 | 7 | When AI Actually Adds Value | Build | [x] | [Blog Post](https://blog.avnishyadav.com/2026/01/ai-decision-engine-not-replacement.html) | AI = decision engine, not replacement. Classification, summarization, scoring, rewriting. |
 | 8 | Prompting Is Not Chatting | Automate | [x] | [Blog Post](https://blog.avnishyadav.com/2026/01/stop-writing-prompts-that-fail-contract-based-approach.html) | Prompts are contracts. Prompts as specifications with inputs, constraints, and outputs. |
-| 9 | Why Your AI Output Is Generic | Automate | [ ] | | Missing constraints cause bad output. AI produces average output because developers give average instructions. |
+| 9 | Why Your AI Output Is Generic | Automate | [x] | [Blog Post](https://blog.avnishyadav.com/2026/01/ai-output-average-missing-constraints.html) | Missing constraints cause bad output. AI produces average output because developers give average instructions. |
 | 10 | The Automation Mental Model | Mindset | [ ] | | Think in flows, not features. Input → transform → decide → output. |
 | 11 | Automating Learning Itself | Automate | [ ] | | Learn faster with systems. Automate notes, summaries, and revision using n8n + AI. |
 | 12 | Building Your First AI Agent (Properly) | Build | [ ] | | Agents need structure. Agents as workflows with memory and rules — not magic bots. |

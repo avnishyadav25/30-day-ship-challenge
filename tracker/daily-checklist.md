@@ -14,7 +14,7 @@
 | 10 | The Automation Mental Model | Mindset | [x] | [Blog Post](https://blog.avnishyadav.com/2026/01/automation-breaking-think-features-not-flows.html) | Think in flows, not features. Input → transform → decide → output. |
 | 11 | Automating Learning Itself | Automate | [x] | [Blog Post](https://blog.avnishyadav.com/2026/01/stop-studying-manually-automate-learning-n8n-ai.html) | Learn faster with systems. Automate notes, summaries, and revision using n8n + AI. |
 | 12 | Building Your First AI Agent (Properly) | Build | [x] | [Blog Post](https://blog.avnishyadav.com/2026/01/ai-agents-structured-workflows-not-magic.html) | Agents need structure. Agents as workflows with memory and rules — not magic bots. |
-| 13 | Why Most AI Agents Fail | Build | [ ] | | Missing guardrails. Hallucinations, memory drift, and lack of validation. |
+| 13 | Why Most AI Agents Fail | Build | [x] | [Blog Post](https://blog.avnishyadav.com/2026/01/ai-agent-guardrails-hallucinations-memory-validation.html) | Missing guardrails. Hallucinations, memory drift, and lack of validation. |
 | 14 | Memory in Automation Systems | Build | [ ] | | Memory must be controlled. Short-term vs long-term memory and when to use each. |
 | 15 | Scoring AI Output | Automate | [ ] | | AI must be judged. Scoring outputs (clarity, usefulness, accuracy) and rejecting bad responses. |
 | 16 | Multi-Step AI Pipelines | Build | [ ] | | One call is not enough. Chaining AI steps (generate → score → rewrite) produces professional output. |
